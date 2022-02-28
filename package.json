@@ -1,7 +1,7 @@
 {
-  "name": "assignment-2",
+  "name": "assignment-3",
   "version": "1.0.0",
-  "description": "",
+  "description": "Assignment 3",
   "main": "index.js",
   "scripts": {
     "start:run": "babel src --presets @babel/react --out-dir public --watch --verbose",
@@ -12,22 +12,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nouraliCS/Assignment-2.git"
+    "url": "git+https://github.com/nouraliCS/Assignment-3.git"
   },
   "author": "Ali",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/nouraliCS/Assignment-2/issues"
-  },
-  "homepage": "https://github.com/nouraliCS/Assignment-2#readme",
+  "homepage": "https://github.com/nouraliCS/Assignment-3/",
   "dependencies": {
-    "express": "^4.17.2"
+    "apollo-server-express": "^2.3.1",
+    "express": "^4.16.4",
+    "graphql": "^0.13.2",
+    "nodemon": "^1.18.9"
   },
   "devDependencies": {
-    "@babel/cli": "^7.17.0",
-    "@babel/core": "^7.17.2",
-    "@babel/preset-env": "^7.16.11",
-    "@babel/preset-react": "^7.16.7",
-    "nodemon": "^2.0.15"
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/preset-react": "^7.0.0"
   }
 }

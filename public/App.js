@@ -2,6 +2,10 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -22,29 +26,9 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var initialProducts = [{
-  id: 1,
-  product_name: 'White T-shirt',
-  price: "30.00",
-  Category: 'Shirt',
-  Link: 'https://www.walmart.com/ip/Bonobos-Fielder-Men-s-and-Big-Men-s-Short-Sleeve-Pocket-Tee-Up-to-3XL/382301711'
-}, {
-  id: 2,
-  product_name: 'Gray jeans',
-  price: "49.99",
-  Category: 'Jeans',
-  Link: 'https://www.walmart.com/ip/Lee-Men-s-Active-Stretch-Slim-Fit-Jean/297675870'
-}, {
-  id: 3,
-  product_name: 'Blue Jacket',
-  price: "79.99",
-  Category: 'Jackets',
-  Link: 'https://www.walmart.com/ip/Port-Authority-Denim-Jacket-2XL-Denim-Blue/467162354?athbdg=L1700'
-}];
-
 function ProductRow(props) {
   var product = props.product;
-  return /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", null, product.id), /*#__PURE__*/React.createElement("td", null, product.product_name), /*#__PURE__*/React.createElement("td", null, "$ ", product.price), /*#__PURE__*/React.createElement("td", null, product.Category), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("a", {
+  return /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", null, product.id), /*#__PURE__*/React.createElement("td", null, product.product_name), /*#__PURE__*/React.createElement("td", null, "$ ", product.Price), /*#__PURE__*/React.createElement("td", null, product.Category), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("a", {
     href: product.Link,
     target: "_blank"
   }, "View")));
@@ -83,15 +67,15 @@ var ProductAdd = /*#__PURE__*/function (_React$Component) {
       e.preventDefault();
       var form = document.forms.productAdd;
       var product = {
-        Category: form.Category.value,
-        price: form.Price.value,
         product_name: form.product_name.value,
+        Price: form.Price.value,
+        Category: form.Category.value,
         Link: form.Link.value
       };
       this.props.createProduct(product);
-      form.Category.value = "";
-      form.Price.value = "";
       form.product_name.value = "";
+      form.Price.value = "";
+      form.Category.value = "";
       form.Link.value = "";
     }
   }, {
@@ -110,13 +94,16 @@ var ProductAdd = /*#__PURE__*/function (_React$Component) {
       }, "Shirts"), /*#__PURE__*/React.createElement("option", {
         value: "Jeans"
       }, "Jeans"), /*#__PURE__*/React.createElement("option", {
+        value: "Jackets"
+      }, "Jackets"), /*#__PURE__*/React.createElement("option", {
+        value: "Sweaters"
+      }, "Sweaters"), /*#__PURE__*/React.createElement("option", {
         value: "Accessories"
-      }, "Accessories"), /*#__PURE__*/React.createElement("option", {
-        value: "Shorts"
-      }, "Shorts"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+      }, "Accessories"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
         for: "Price"
       }, "Price Per Unit:"), /*#__PURE__*/React.createElement("input", {
-        type: "text",
+        type: "number",
+        step: "0.01",
         name: "Price",
         placeholder: "Price"
       }))), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
@@ -163,25 +150,90 @@ var ProductList = /*#__PURE__*/function (_React$Component2) {
     }
   }, {
     key: "loadData",
-    value: function loadData() {
-      var _this3 = this;
+    value: function () {
+      var _loadData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var query, response, body, result;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                query = "query {\n            productList {\n              id product_name Price Category Link\n            }\n          }";
+                _context.next = 3;
+                return fetch('/graphql', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    query: query
+                  })
+                });
 
-      setTimeout(function () {
-        _this3.setState({
-          products: initialProducts
-        });
-      }, 500);
-    }
+              case 3:
+                response = _context.sent;
+                _context.next = 6;
+                return response.text();
+
+              case 6:
+                body = _context.sent;
+                result = JSON.parse(body);
+                this.setState({
+                  products: result.data.productList
+                });
+
+              case 9:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function loadData() {
+        return _loadData.apply(this, arguments);
+      }
+
+      return loadData;
+    }()
   }, {
     key: "createProduct",
-    value: function createProduct(product) {
-      product.id = this.state.products.length + 1;
-      var newProductsList = this.state.products.slice();
-      newProductsList.push(product);
-      this.setState({
-        products: newProductsList
-      });
-    }
+    value: function () {
+      var _createProduct = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(product) {
+        var query, response;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                query = "mutation {\n          productAdd(product:{\n            product_name: \"".concat(product.product_name, "\",\n            Price: \"").concat(product.Price, "\",\n            Category: \"").concat(product.Category, "\",\n            Link: \"").concat(product.Link, "\",\n          }) {\n            id\n          }\n        }");
+                _context2.next = 3;
+                return fetch('/graphql', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    query: query
+                  })
+                });
+
+              case 3:
+                response = _context2.sent;
+                this.loadData();
+
+              case 5:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function createProduct(_x) {
+        return _createProduct.apply(this, arguments);
+      }
+
+      return createProduct;
+    }()
   }, {
     key: "render",
     value: function render() {

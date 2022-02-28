@@ -1,27 +1,3 @@
-const initialProducts = [
-    {
-        id: 1, 
-        product_name: 'White T-shirt', 
-        price: "30.00", 
-        Category: 'Shirt',
-        Link:'https://www.walmart.com/ip/Bonobos-Fielder-Men-s-and-Big-Men-s-Short-Sleeve-Pocket-Tee-Up-to-3XL/382301711',
-    },
-    {
-        id: 2, 
-        product_name: 'Gray jeans', 
-        price: "49.99", 
-        Category: 'Jeans',
-        Link:'https://www.walmart.com/ip/Lee-Men-s-Active-Stretch-Slim-Fit-Jean/297675870',
-    },
-    {
-        id: 3, 
-        product_name: 'Blue Jacket', 
-        price: "79.99", 
-        Category: 'Jackets',
-        Link:'https://www.walmart.com/ip/Port-Authority-Denim-Jacket-2XL-Denim-Blue/467162354?athbdg=L1700',
-    },
-];
-
 function ProductRow(props) {
 
     const product = props.product; 
@@ -29,7 +5,7 @@ function ProductRow(props) {
         <tr>
             <td>{product.id}</td>
             <td>{product.product_name}</td>
-            <td>$ {product.price}</td>
+            <td>$ {product.Price}</td>
             <td>{product.Category}</td>
             <td><a href={product.Link} target="_blank">View</a></td>
 
@@ -68,31 +44,32 @@ class ProductAdd extends React.Component {
         e.preventDefault();
         const form = document.forms.productAdd;
         const product = {
-        Category: form.Category.value, price: form.Price.value,
-        product_name: form.product_name.value, Link: form.Link.value
+            product_name: form.product_name.value, Price: form.Price.value,
+            Category: form.Category.value, Link: form.Link.value
         }
         this.props.createProduct(product);
-        form.Category.value = ""; form.Price.value = "";
-        form.product_name.value=""; form.Link.value="";
+        form.product_name.value=""; form.Price.value = "";
+        form.Category.value=""; form.Link.value="";
     }
 
 
     render() {
         return (
             <form name="productAdd" onSubmit={this.handleSubmit}>
-                <div>
+                    <div>
                     <div>
                         <label for="Category">Category:</label>
                         <select name="Category" placeholder="Category">
                             <option value="Shirts">Shirts</option>
                             <option value="Jeans">Jeans</option>
+                            <option value="Jackets">Jackets</option>
+                            <option value="Sweaters">Sweaters</option>
                             <option value="Accessories">Accessories</option>
-                            <option value="Shorts">Shorts</option>
                         </select>
                     </div>  
                     <div>
                         <label for="Price">Price Per Unit:</label>
-                        <input type="text" name="Price" placeholder="Price" />
+                        <input type="number" step="0.01" name="Price" placeholder="Price" />
                     </div>
                 </div>
                 <br></br>
@@ -124,18 +101,41 @@ class ProductList extends React.Component {
         this.loadData();
     }
 
-    loadData() {
-        setTimeout(() => {
-        this.setState({ products: initialProducts });
-        }, 500);
+    async loadData() {
+        const query = `query {
+            productList {
+              id product_name Price Category Link
+            }
+          }`;
+          const response = await fetch('/graphql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ query })
+          });
+          const body = await response.text();
+          const result = JSON.parse(body);
+          this.setState({ products: result.data.productList });
     }
 
-    createProduct(product) {
-        product.id = this.state.products.length + 1;
-        const newProductsList = this.state.products.slice();
-        newProductsList.push(product);
-        this.setState({ products: newProductsList });
-    }
+    async createProduct(product) {
+        const query = `mutation {
+          productAdd(product:{
+            product_name: "${product.product_name}",
+            Price: "${product.Price}",
+            Category: "${product.Category}",
+            Link: "${product.Link}",
+          }) {
+            id
+          }
+        }`;
+    
+        const response = await fetch('/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json'},
+          body: JSON.stringify({ query })
+        });
+        this.loadData();
+      }
 
     
     render() {
@@ -146,7 +146,7 @@ class ProductList extends React.Component {
                 <hr />
                 <ProductTable products={this.state.products}/>
                 <p>Add a new product to inventory</p>
-                <hr />
+                <hr /> 
                 <ProductAdd createProduct={this.createProduct}/>
             </React.Fragment>
         );
